@@ -1,6 +1,7 @@
 <?php
 date_default_timezone_set("Europe/Moscow");
 include "db_settings.php";
+
 function getID($number) {
     $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
     $pass = array(); //remember to declare $pass as an array
@@ -22,9 +23,9 @@ function getInfoBrowser(){
 
 function onProxy(){
     if(file_get_contents("https://blackbox.ipinfo.app/lookup/" . $_SERVER['REMOTE_ADDR']) == "Y"){
-        return "true";
+        return "да";
     }else{
-        return "false";
+        return "нет";
     }
 }
 
@@ -64,11 +65,12 @@ function getOS($user_agent) {
 }
 
 include("db_settings.php");
+
 $ip = $_SERVER['REMOTE_ADDR'];
 $getip = json_decode(file_get_contents("http://ip-api.com/json/".$ip. "?fields=192511&lang=ru"));
-$city = $getip->country . "[" . $getip->countryCode . "]". " City:" .$getip->city;
+$city = $getip->country . " (" . $getip->countryCode . ")". ", " .$getip->city;
 if($getip->country == ""){
-	$city = "Error to resolve!";
+	$city = "Ошибка";
 }
 $user_agent = $_SERVER['HTTP_USER_AGENT'];
 $browser = getInfoBrowser();
@@ -80,6 +82,13 @@ $id = getID(16);
 
 $conn = new mysqli($host, $user, $password, $db);
 
+$user_bd = "SELECT * FROM `banned` WHERE ip = '$ip'";
+$ress = $conn->query($user_bd);
+if (mysqli_num_rows($ress) == 0){
+} else {
+die("Вы забанены");
+}
+
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
     echo "error";
@@ -89,6 +98,7 @@ $vowels = array("\"", "\\", "'");
 $isp = str_replace($vowels, "", $getip->isp);
 
 $date = date('d/m/Y h:i:s a', time());
+
 
 $user_bd = "SELECT * FROM ip_logger WHERE ip = '$ip'";
 $ress = $conn->query($user_bd);

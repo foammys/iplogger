@@ -33,6 +33,34 @@ if(isset($_GET['rem'])){
    Header("Location: /admin/logger.php");
 }
 
+if(isset($_GET['ban'])){
+	$id = $_GET['ban'];
+	include("db_settings.php");
+	$conn = new mysqli($host, $user, $password, $db);
+   
+   if(! $conn ) {
+      die('Could not connect: ' . mysql_error());
+   }
+   
+   $sql = "INSERT INTO `banned` (`ip`) VALUES ('".$id."')";
+   $result = $conn->query($sql);
+   Header("Location: /admin/logger.php");
+}
+
+if(isset($_GET['unban'])){
+	$id = $_GET['unban'];
+	include("db_settings.php");
+	$conn = new mysqli($host, $user, $password, $db);
+   
+   if(! $conn ) {
+      die('Could not connect: ' . mysql_error());
+   }
+   
+   $sql = "DELETE FROM `banned` WHERE `ip` = '".$id."'";
+   $result = $conn->query($sql);
+   Header("Location: /admin/logger.php");
+}
+
 if(isset($_GET['act'])){
   switch($_GET['act']){
     case "logout":
@@ -67,7 +95,7 @@ if(isset($_GET['down'])){
 <html lang="en">
 
 <head>
-  <title>Foammy > IpLogger</title>
+  <title>Foammy | Panel</title>
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
@@ -81,7 +109,7 @@ if(isset($_GET['down'])){
 
 <body class="dark-edition">
   <div class="wrapper ">
-    <div class="sidebar" data-color="purple" data-background-color="black" data-image="./assets/img/background.png">
+    <div class="sidebar" data-color="azure" data-image="static/assets/images/auth/Login_bg.jpg">
       <!--
       Tip 1: You can change the color of the sidebar using: data-color="purple | azure | green | orange | danger"
 
@@ -150,18 +178,18 @@ if(isset($_GET['down'])){
                     $sql = "SELECT * FROM `$table`";
                     $retval = $conn->query($sql);
                     $num_rows = $retval->num_rows;
-                  echo '<p class="card-category">Кол-во логов: '.$num_rows.'</p>';
+                  echo '<p class="card-category">Собрано '.$num_rows.' логов</p>';
                   ?>
                   <ul class="nav nav-tabs" data-tabs="tabs">
                         <li class="nav-item" onclick="window.open('?rem=*')">
                           <a class="nav-link" href="?rem=*" data-toggle="tab">
-                            <i class="material-icons">delete</i> Delete all
+                            <i class="material-icons">delete</i> Удалить все
                             <div class="ripple-container"></div>
                           </a>
                         </li>
                       <li class="nav-item" onclick="window.open('?down')">
                           <a class="nav-link" href="?down"data-toggle="tab">
-                            <i class="material-icons">sim_card_download</i> Download DB
+                            <i class="material-icons">sim_card_download</i> Открыть базу
                             <div class="ripple-container"></div>
                           </a>
                         </li>
@@ -233,7 +261,8 @@ if(isset($_GET['down'])){
                                   </button>
                               <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
                                 <a class="dropdown-item text-danger" href="?rem='.$row['id'].'"><i class="bx bxs-trash mr-2"></i> Удалить из списка</a>
-                                <a class="dropdown-item text-info" href="https://ru.infobyip.com/ip-'.$row['ip'].'.html"><i class="bx bxs-eject mr-2"></i> Информация об IP</a>
+                                <a class="dropdown-item text-info" href="?ban='.$row['ip'].'"><i class="bx bxs-people mr-2"></i> Забанить IP</a>
+                                <a class="dropdown-item text-info" href="?unban='.$row['ip'].'"><i class="bx bxs-people mr-2"></i> Разбанить IP</a>
                               </div>
                             </div>
                           </td>
@@ -265,11 +294,7 @@ if(isset($_GET['down'])){
             </ul>
           </nav>
           <div class="copyright float-right">
-            &copy;
-            <script>
-              document.write(new Date().getFullYear())
-            </script>, Created <i class="material-icons">favorite</i> by
-            <a href="/" target="_blank">Foammy</a>
+          Coded by <a href="https://foammy.pw" target="_blank">Foammy</a>
           </div>
           <!-- your footer here -->
         </div>
